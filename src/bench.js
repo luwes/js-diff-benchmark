@@ -9,8 +9,10 @@ let parent = new Dommy();
 
 const libs = [
   'list-difference',
+  'snabbdom',
   'udomdiff',
   'stage0',
+  // 'heckel',
 ];
 
 let rows;
@@ -23,6 +25,31 @@ libs.forEach(lib => {
   var code = fs.readFileSync(file, 'utf8');
   var gzip = gzipSize.sync(Terser.minify(code).code);
   console.log(`${c.bgGreen.black(` ${lib.toUpperCase()} ${gzip}B `)}\n`);
+
+  //* warm up + checking everything works upfront
+  create1000(parent, diff);
+  console.assert(parent.childNodes.length === 1000);
+  append1000(parent, diff);
+  console.assert(parent.childNodes.length === 2000);
+  clear(parent, diff);
+  console.assert(parent.childNodes.length === 0);
+  create10000(parent, diff);
+  console.assert(parent.childNodes.length === 10000);
+  clear(parent, diff);
+  console.assert(parent.childNodes.length === 0);
+  create1000(parent, diff);
+  swapRows(parent, diff);
+  console.assert(parent.childNodes[1].value == 998);
+  console.assert(parent.childNodes[998].value == 1);
+  clear(parent, diff);
+  create1000(parent, diff);
+  updateEach10thRow(parent, diff);
+  console.assert(/!$/.test(parent.childNodes[0].value));
+  console.assert(!/!$/.test(parent.childNodes[1].value));
+  console.assert(/!$/.test(parent.childNodes[10].value));
+  clear(parent, diff);
+  console.assert(parent.childNodes.length === 0);
+  //*/
 
   console.time(lib.toUpperCase());
 
@@ -87,8 +114,8 @@ libs.forEach(lib => {
   updateEach10thRow(parent, diff);
   console.timeEnd('update every 10th row');
   out = ['operations', parent.count()];
-  if (parent.count() > 199) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 199}`)}`);
+  if (parent.count() > 100) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 100}`)}`);
   }
   console.log(...out, '\n');
   parent.reset();
@@ -196,7 +223,7 @@ function swapRows(parent, diff) {
 function updateEach10thRow(parent, diff) {
   const childNodes = parent.childNodes.slice();
   for (let i = 0; i < childNodes.length; i += 10)
-    childNodes[i] = new Nody(parent, i);
+    childNodes[i] = new Nody(parent, i + '!');
   return diff(
     parent,
     parent.childNodes,
