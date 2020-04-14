@@ -1,0 +1,14 @@
+env:
+  es6: true
+  node: true
+
+extends:
+  - eslint:recommended
+
+parserOptions:
+  ecmaVersion: 9
+
+rules:
+  semi: error
+  no-unused-vars:
+    - error

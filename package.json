@@ -1,0 +1,20 @@
+{
+  "name": "js-diff-benchmark",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "node src/bench.js"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "prettier": "^2.0.4"
+  },
+  "dependencies": {
+    "ansi-colors": "^4.1.1",
+    "gzip-size": "^5.1.1",
+    "list-diff2": "^0.1.4",
+    "terser": "^4.6.11",
+    "udomdiff": "^1.0.11"
+  }
+}
