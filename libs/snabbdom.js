@@ -95,7 +95,7 @@ module.exports = function(parent, a, b, get, afterNode) {
       // Move
       else {
         parent.insertBefore(
-          get(b[old_start_j]),
+          get(start_b),
           get(a[start_i]) || afterNode
         );
         a[old_start_j] = null;
