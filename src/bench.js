@@ -12,7 +12,7 @@ const libs = [
   'snabbdom',
   'udomdiff',
   'stage0',
-  // 'heckel',
+  'heckel',
 ];
 
 let rows;
@@ -59,14 +59,22 @@ libs.forEach(lib => {
   rows = create1000(parent, diff);
   console.timeEnd('create 1000');
   console.assert(parent.childNodes.every((row, i) => row === rows[i]));
-  console.log('operations', parent.count(), '\n');
+  out = ['operations', parent.count()];
+  if (parent.count() > 1000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
+  }
+  console.log(...out, '\n');
   parent.reset();
 
   console.time('clear');
   rows = clear(parent, diff);
   console.timeEnd('clear');
   console.assert(parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 0);
-  console.log('operations', parent.count(), '\n');
+  out = ['operations', parent.count()];
+  if (parent.count() > 1000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
+  }
+  console.log(...out, '\n');
   parent.reset();
 
   create1000(parent, diff);
@@ -75,7 +83,11 @@ libs.forEach(lib => {
   rows = create1000(parent, diff);
   console.timeEnd('replace 1000');
   console.assert(parent.childNodes.every((row, i) => row === rows[i]));
-  console.log('operations', parent.count(), '\n');
+  out = ['operations', parent.count()];
+  if (parent.count() > 1000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
+  }
+  console.log(...out, '\n');
   clear(parent, diff);
   parent.reset();
 
@@ -85,14 +97,22 @@ libs.forEach(lib => {
   rows = append1000(parent, diff);
   console.timeEnd('append 1000');
   console.assert(parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 2000);
-  console.log('operations', parent.count(), '\n');
+  out = ['operations', parent.count()];
+  if (parent.count() > 1000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
+  }
+  console.log(...out, '\n');
   parent.reset();
 
   console.time('append more');
   rows = append1000(parent, diff);
   console.timeEnd('append more');
   console.assert(parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 3000);
-  console.log('operations', parent.count(), '\n');
+  out = ['operations', parent.count()];
+  if (parent.count() > 1000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
+  }
+  console.log(...out, '\n');
   parent.reset();
   clear(parent, diff);
 
@@ -125,7 +145,11 @@ libs.forEach(lib => {
   console.time('create 10000 rows');
   create10000(parent, diff);
   console.timeEnd('create 10000 rows');
-  console.log('operations', parent.count(), '\n');
+  out = ['operations', parent.count()];
+  if (parent.count() > 10000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 10000}`)}`);
+  }
+  console.log(...out, '\n');
   parent.reset();
 
   console.time('swap over 10000 rows');
@@ -142,8 +166,8 @@ libs.forEach(lib => {
   clear(parent, diff);
   console.timeEnd('clear 10000');
   out = ['operations', parent.count()];
-  if (parent.count() > 10002) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 10002}`)}`);
+  if (parent.count() > 10000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 10000}`)}`);
   }
   console.log(...out, '\n');
   parent.reset();

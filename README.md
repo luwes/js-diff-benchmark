@@ -10,6 +10,7 @@ Simple benchmark for testing your DOM diffing algorithm.
 | 2 | [udomdiff](https://github.com/WebReflection/udomdiff) | 460B | ~258ms | Fails some minimum operations tests. |
 | 3 | [list-difference](https://github.com/paldepind/list-difference/) | 283B | ~310ms | Fails some minimum operations tests. |
 | 4 | [stage0](https://github.com/Freak613/stage0) | 950B | ~330ms | Fails some minimum operations tests. |
+| 5 | [heckel](https://johnresig.com/projects/javascript-diff-algorithm/) | 450B | ~460ms | Fails most minimum operations tests, might be broke. |
 
 <table>
   <tr>
