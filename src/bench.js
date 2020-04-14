@@ -8,11 +8,11 @@ const {Dommy, Nody, get} = require('./dommy.js');
 let parent = new Dommy();
 
 const libs = [
-  'list-difference',
-  'snabbdom',
-  'udomdiff',
-  'stage0',
   'heckel',
+  'list-difference',
+  'stage0',
+  'udomdiff',
+  'snabbdom',
 ];
 
 let rows;
