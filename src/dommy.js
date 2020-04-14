@@ -42,6 +42,7 @@ class Dommy {
   insertBefore(newNode, liveNode) {
     if (!liveNode) liveNode = this.lastElementChild;
     this.operations.push(`insertBefore(${newNode.value}, ${liveNode.value})`);
+    if (newNode === liveNode) return;
     this._removeChild(newNode);
     const index = this._childNodes.indexOf(liveNode);
     if (index < 0)
