@@ -8,11 +8,11 @@ const {Dommy, Nody, get} = require('./dommy.js');
 let parent = new Dommy();
 
 const libs = [
-  'list-difference',
-  'snabbdom',
-  'udomdiff',
-  'stage0',
   'heckel',
+  'list-difference',
+  'stage0',
+  'udomdiff',
+  'snabbdom',
 ];
 
 let rows;
@@ -63,6 +63,17 @@ libs.forEach(lib => {
   if (parent.count() > 1000) {
     out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
   }
+  console.log(...out, '\n');
+  parent.reset();
+
+  console.time('random 1000');
+  rows = random1000(parent, diff);
+  console.timeEnd('random 1000');
+  console.assert(parent.childNodes.every((row, i) => row === rows[i]));
+  out = ['operations', parent.count()];
+  // if (parent.count() > 1000) {
+  //   out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
+  // }
   console.log(...out, '\n');
   parent.reset();
 
@@ -178,6 +189,15 @@ libs.forEach(lib => {
   console.log('\n*******************************************\n');
 });
 
+function random1000(parent, diff) {
+  return diff(
+    parent,
+    parent.childNodes,
+    Array.from(parent.childNodes).sort(() => Math.random() - Math.random()),
+    get,
+    parent.lastElementChild
+  );
+}
 
 function append1000(parent, diff) {
   const start = parent.childNodes.length - 1;

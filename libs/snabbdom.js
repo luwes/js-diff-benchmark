@@ -31,15 +31,15 @@ module.exports = function(parent, a, b, get, afterNode) {
     }
     else if (start_a === end_b) {
       parent.insertBefore(
-        get(a[start_i]),
-        get(a[end_i]).nextSibling || afterNode
+        get(a[start_i], 1),
+        get(a[end_i], -0).nextSibling || afterNode
       );
       start_a = a[++start_i];
       end_b = b[--end_j];
     } else if (end_a === start_b) {
       parent.insertBefore(
-        get(a[end_i]),
-        get(a[start_i]) || afterNode
+        get(a[end_i], 1),
+        get(a[start_i] || afterNode, 0)
       );
       end_a = a[--end_i];
       start_b = b[++start_j];
@@ -50,7 +50,6 @@ module.exports = function(parent, a, b, get, afterNode) {
       // a move, or a mid-list insertion or deletion and not if there
       // has been an insertion at the end or deletion from the front.
       if (need_indices === false) {
-
         need_indices = true;
 
         // Create a mapping from keys to their position in the old list
@@ -61,7 +60,6 @@ module.exports = function(parent, a, b, get, afterNode) {
         for (i = 0; i < b.length; i++) {
           b_index.set(b[i], i);
         }
-
       }
 
       old_start_j = a_index.get(start_b);
@@ -73,8 +71,8 @@ module.exports = function(parent, a, b, get, afterNode) {
       // because it doesn't recursively diff and patch the replaced node.
       if (old_start_j === undefined && new_start_i === undefined) {
         parent.replaceChild(
-          start_b,
-          get(a[start_i]) // old
+          get(start_b, 1),
+          get(a[start_i], -1) // old
         );
         start_a = a[++start_i];
         start_b = b[++start_j];
@@ -82,21 +80,21 @@ module.exports = function(parent, a, b, get, afterNode) {
       // Insertion
       else if (old_start_j === undefined) {
         parent.insertBefore(
-          start_b,
-          get(a[start_i]) || afterNode
+          get(start_b, 1),
+          get(a[start_i] || afterNode, 0)
         );
         start_b = b[++start_j];
       }
       // Deletion
       else if (new_start_i === undefined) {
-        parent.removeChild(get(a[start_i]));
+        parent.removeChild(get(start_a, -1));
         start_a = a[++start_i];
       }
       // Move
       else {
         parent.insertBefore(
-          get(b[old_start_j]),
-          get(a[start_i]) || afterNode
+          get(start_b, 1),
+          get(a[start_i] || afterNode, 0)
         );
         a[old_start_j] = null;
         start_b = b[++start_j];
@@ -106,12 +104,12 @@ module.exports = function(parent, a, b, get, afterNode) {
   if (start_i <= end_i || start_j <= end_j) {
     if (start_i > end_i) { // old list exhausted; process new list additions
       for (start_j; start_j <= end_j; start_b = b[++start_j]) {
-        parent.insertBefore(start_b, afterNode);
+        parent.insertBefore(get(start_b, 1), get(afterNode, 0));
       }
 
     } else { // new list exhausted; process old list removals
       for (start_i; start_i <= end_i; ++start_i) {
-        parent.removeChild(get(a[start_i]));
+        parent.removeChild(get(a[start_i], -1));
       }
     }
   }
