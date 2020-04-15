@@ -9,8 +9,8 @@ let parent = new Dommy();
 
 const libs = [
   'heckel',
-  'list-difference',
   'stage0',
+  'list-difference',
   'snabbdom',
   'udomdiff',
 ];
