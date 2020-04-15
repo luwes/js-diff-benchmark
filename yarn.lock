@@ -570,11 +570,6 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-list-diff2@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/list-diff2/-/list-diff2-0.1.4.tgz#8539c05c579b424b1349a34be78508d3920df958"
-  integrity sha1-hTnAXFebQksTSaNL54UI05IN+Vg=
-
 lodash@^4.17.14, lodash@^4.17.15:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
@@ -904,10 +899,10 @@ type-fest@^0.8.1:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
 
-udomdiff@^1.0.11:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/udomdiff/-/udomdiff-1.0.11.tgz#2322973f0c40cb9d3f82555ac88ad2f68c1346db"
-  integrity sha512-x1j05bZ6YDAsDGU1+MGXJIuD2OwtUbh+BwH8DhY7UMB6/D/bQPTTDCPqW5gXUno6l6LiMPo5fQyH2agQHAE4JQ==
+udomdiff@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/udomdiff/-/udomdiff-1.1.0.tgz#1d0c4741b93a2ffd10728ca4cea15b277cc3082f"
+  integrity sha512-aqjTs5x/wsShZBkVagdafJkP8S3UMGhkHKszsu1cszjjZ7iOp86+Qb3QOFYh01oWjPMy5ZTuxD6hw5uTKxd+VA==
 
 uri-js@^4.2.2:
   version "4.2.2"

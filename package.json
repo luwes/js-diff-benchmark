@@ -13,8 +13,7 @@
   "dependencies": {
     "ansi-colors": "^4.1.1",
     "gzip-size": "^5.1.1",
-    "list-diff2": "^0.1.4",
     "terser": "^4.6.11",
-    "udomdiff": "^1.0.11"
+    "udomdiff": "^1.1.0"
   }
 }
