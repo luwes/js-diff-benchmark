@@ -197,6 +197,16 @@ libs.forEach(lib => {
   //*/
 
   console.timeEnd(lib.toUpperCase());
+
+  const used = process.memoryUsage().heapUsed / 1024 / 1024;
+  console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
+
+  try {
+    if (global.gc) {global.gc();}
+  } catch (e) {
+    process.exit();
+  }
+
   console.log('\n*******************************************\n');
 });
 
