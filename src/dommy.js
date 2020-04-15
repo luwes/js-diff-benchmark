@@ -54,7 +54,8 @@ class Dommy {
     return newNode;
   }
   replaceChild(newNode, oldNode) {
-    this.operations.push(`replaceChild(${newNode.value}, ${oldNode.value})`);
+    this.operations.push(`delete#replaceChild(${newNode.value}, ${oldNode.value})`);
+    this.operations.push(`insert#replaceChild(${newNode.value}, ${oldNode.value})`);
     this._removeChild(newNode);
     const index = this.childNodes.indexOf(oldNode);
     if (index < 0)

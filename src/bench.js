@@ -106,8 +106,8 @@ libs.forEach(lib => {
   console.timeEnd('replace 1000');
   console.assert(parent.childNodes.every((row, i) => row === rows[i]));
   out = ['operations', parent.count()];
-  if (parent.count() > 1000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
+  if (parent.count() > 2000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 2000}`)}`);
   }
   console.log(...out, '\n');
   clear(parent, diff);
@@ -156,8 +156,8 @@ libs.forEach(lib => {
   updateEach10thRow(parent, diff);
   console.timeEnd('update every 10th row');
   out = ['operations', parent.count()];
-  if (parent.count() > 100) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 100}`)}`);
+  if (parent.count() > 200) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 200}`)}`);
   }
   console.log(...out, '\n');
   parent.reset();
