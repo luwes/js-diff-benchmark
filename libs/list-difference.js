@@ -4,7 +4,6 @@ module.exports = function(parent, a, b, get, before) {
   const bIdx = new Map();
   let i;
   let j;
-  let key = (k) => k;
 
   // Create a mapping from keys to their position in the old list
   for (i = 0; i < a.length; i++) {
@@ -29,16 +28,16 @@ module.exports = function(parent, a, b, get, before) {
       // No more elements in old, this is an addition
       parent.insertBefore(get(bElm, 1), get(a[i], 0) || before);
       j++;
-    } else if (key(aElm) === key(bElm)) {
+    } else if (aElm === bElm) {
       // No difference, we move on
       i++; j++;
     } else {
       // Look for the current element at this location in the new list
       // This gives us the idx of where this element should be
-      var curElmInNew = bIdx.get(key(aElm));
+      var curElmInNew = bIdx.get(aElm);
       // Look for the the wanted elment at this location in the old list
       // This gives us the idx of where the wanted element is now
-      var wantedElmInOld = aIdx.get(key(bElm));
+      var wantedElmInOld = aIdx.get(bElm);
       if (curElmInNew === undefined) {
         // Current element is not in new list, it has been removed
         parent.removeChild(get(a[i], -1));
