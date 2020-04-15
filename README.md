@@ -12,11 +12,12 @@ Simple benchmark for testing your DOM diffing algorithm.
 | 4 | [stage0](https://github.com/Freak613/stage0) | 950B | ~358ms |
 | 5 | [heckel](https://johnresig.com/projects/javascript-diff-algorithm/) | 450B | ~524ms |
 
+---
+
 <table>
   <tr>
-    <td><img src="assets/Screen%20Shot%202020-04-14%20at%209.09.46%20AM.png" width=270></td>
-    <td><img src="assets/Screen%20Shot%202020-04-14%20at%209.09.55%20AM.png" width=270></td>
-    <td><img src="assets/Screen%20Shot%202020-04-14%20at%209.09.38%20AM.png" width=270></td>
+    <td><img src="assets/Screen Shot 2020-04-15 at 9.22.21 AM.png" width=415></td>
+    <td><img src="assets/Screen Shot 2020-04-15 at 9.22.29 AM.png" width=415></td>
   </tr>
  </table>
 
