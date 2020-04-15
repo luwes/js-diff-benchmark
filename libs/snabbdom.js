@@ -2,7 +2,8 @@
 module.exports = function(parent, a, b, get, afterNode) {
   const a_index = new Map();
   const b_index = new Map();
-  let need_indices = false;
+
+  let need_indices;
   let start_i = 0;
   let end_i = a.length - 1;
   let start_j = 0;
@@ -13,6 +14,7 @@ module.exports = function(parent, a, b, get, afterNode) {
   let end_b = b[end_j];
   let old_start_j;
   let new_start_i;
+
   while (start_i <= end_i && start_j <= end_j) {
     if (start_a == null) {
       start_a = a[++start_i];
@@ -49,7 +51,7 @@ module.exports = function(parent, a, b, get, afterNode) {
       // Lazily build maps here. They are relevant only if there has been
       // a move, or a mid-list insertion or deletion and not if there
       // has been an insertion at the end or deletion from the front.
-      if (need_indices === false) {
+      if (!need_indices) {
         need_indices = true;
 
         // Create a mapping from keys to their position in the old list
@@ -106,7 +108,6 @@ module.exports = function(parent, a, b, get, afterNode) {
       for (start_j; start_j <= end_j; start_b = b[++start_j]) {
         parent.insertBefore(get(start_b, 1), get(afterNode, 0));
       }
-
     } else { // new list exhausted; process old list removals
       for (start_i; start_i <= end_i; ++start_i) {
         parent.removeChild(get(a[start_i], -1));

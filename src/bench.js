@@ -66,14 +66,25 @@ libs.forEach(lib => {
   console.log(...out, '\n');
   parent.reset();
 
-  console.time('random 1000');
-  rows = random1000(parent, diff);
-  console.timeEnd('random 1000');
+  console.time('random');
+  rows = random(parent, diff);
+  console.timeEnd('random');
   console.assert(parent.childNodes.every((row, i) => row === rows[i]));
   out = ['operations', parent.count()];
-  // if (parent.count() > 1000) {
-  //   out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
-  // }
+  if (parent.count() > 1000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
+  }
+  console.log(...out, '\n');
+  parent.reset();
+
+  console.time('reverse');
+  rows = reverse(parent, diff);
+  console.timeEnd('reverse');
+  console.assert(parent.childNodes.every((row, i) => row === rows[i]));
+  out = ['operations', parent.count()];
+  if (parent.count() > 1000) {
+    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
+  }
   console.log(...out, '\n');
   parent.reset();
 
@@ -189,11 +200,21 @@ libs.forEach(lib => {
   console.log('\n*******************************************\n');
 });
 
-function random1000(parent, diff) {
+function random(parent, diff) {
   return diff(
     parent,
     parent.childNodes,
     Array.from(parent.childNodes).sort(() => Math.random() - Math.random()),
+    get,
+    parent.lastElementChild
+  );
+}
+
+function reverse(parent, diff) {
+  return diff(
+    parent,
+    parent.childNodes,
+    Array.from(parent.childNodes).reverse(),
     get,
     parent.lastElementChild
   );
