@@ -56,6 +56,7 @@ module.exports = function(parent, a, b, before) {
           a[i] || before
         );
         a[wantedElmInOld] = null;
+        if (wantedElmInOld > i + 1) i++;
         j++;
       }
     }
