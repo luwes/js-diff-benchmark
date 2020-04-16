@@ -1,4 +1,4 @@
-module.exports = function diff(parent, a, b, get, before) {
+module.exports = function diff(parent, a, b, before) {
   const bmap = new Map(),
     amap = new Map(),
     nextSibling = Array(a.length);

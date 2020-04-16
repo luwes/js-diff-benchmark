@@ -13,7 +13,6 @@ module.exports = function reconcile(
   parent,
   renderedValues,
   data,
-  createFn,
   afterNode,
   beforeNode
 ) {
@@ -38,7 +37,7 @@ module.exports = function reconcile(
     let node,
       mode = afterNode !== undefined ? 1 : 0;
     for (let i = 0, len = data.length; i < len; i++) {
-      node = createFn(data[i]);
+      node = data[i];
       mode ? parent.insertBefore(node, afterNode) : parent.appendChild(node);
     }
     return data;
@@ -136,7 +135,7 @@ module.exports = function reconcile(
       let node,
         mode = afterNode ? 1 : 0;
       while (newStart <= newEnd) {
-        node = createFn(data[newStart]);
+        node = data[newStart];
         mode ? parent.insertBefore(node, afterNode) : parent.appendChild(node);
         newStart++;
       }
@@ -181,7 +180,7 @@ module.exports = function reconcile(
 
     let mode = afterNode ? 1 : 0;
     for (let i = newStart; i <= newEnd; i++) {
-      node = createFn(data[i]);
+      node = data[i];
       mode ? parent.insertBefore(node, afterNode) : parent.appendChild(node);
     }
 
@@ -210,7 +209,7 @@ module.exports = function reconcile(
       lisIdx--;
     } else {
       if (P[i] === -1) {
-        tmpD = createFn(data[i]);
+        tmpD = data[i];
       } else {
         tmpD = nodes[P[i]];
       }

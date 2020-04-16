@@ -101,4 +101,4 @@ class Nody {
   }
 }
 
-module.exports = {Dommy, Nody, get: o => o};
+module.exports = {Dommy, Nody};
