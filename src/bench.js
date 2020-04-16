@@ -37,7 +37,7 @@ const table = new Table({
   colAligns: cols.map(() => 'middle'),
   style: {
     head: ['green'],
-  }
+  },
 });
 
 let rows;
@@ -96,9 +96,11 @@ libs.forEach((lib) => {
   const stop = (count, operationMax) => {
     const delta = parent.count() - operationMax;
     libResults.push(`${round((microtime.now() - begin) / 1000)}ms
-${c.gray(parent.count())}${count > operationMax
-    ? (delta > 99 ? '\n' : ' ') + c.bgRed.black(`+${delta}`)
-    : '' }`);
+${c.gray(parent.count())}${
+      count > operationMax
+        ? (delta > 99 ? '\n' : ' ') + c.bgRed.black(`+${delta}`)
+        : ''
+    }`);
   };
 
   // actual benchmark
@@ -106,26 +108,40 @@ ${c.gray(parent.count())}${count > operationMax
   start();
   rows = create1000(parent, diff);
   stop(parent.count(), 1000);
-  console.assert(parent.childNodes.every((row, i) => row === rows[i]));
+  console.assert(
+    parent.childNodes.every((row, i) => row === rows[i]),
+    '%s 1k',
+    lib
+  );
   parent.reset();
 
   start();
   rows = random(parent, diff);
   stop(parent.count(), 1000);
-  console.assert(parent.childNodes.every((row, i) => row === rows[i]));
+  console.assert(
+    parent.childNodes.every((row, i) => row === rows[i]),
+    '%s random',
+    lib
+  );
   parent.reset();
 
   start();
   rows = reverse(parent, diff);
   stop(parent.count(), 1000);
-  console.assert(parent.childNodes.every((row, i) => row === rows[i]));
+  console.assert(
+    parent.childNodes.every((row, i) => row === rows[i]),
+    '%s reverse',
+    lib
+  );
   parent.reset();
 
   start();
   rows = clear(parent, diff);
   stop(parent.count(), 1000);
   console.assert(
-    parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 0
+    parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 0,
+    '%s clear',
+    lib
   );
   parent.reset();
 
@@ -142,7 +158,10 @@ ${c.gray(parent.count())}${count > operationMax
   rows = append1000(parent, diff);
   stop(parent.count(), 1000);
   console.assert(
-    parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 2000
+    parent.childNodes.every((row, i) => row === rows[i]) &&
+      rows.length === 2000,
+    '%s append 1k',
+    lib
   );
   parent.reset();
 
@@ -156,7 +175,8 @@ ${c.gray(parent.count())}${count > operationMax
   create1000(parent, diff);
   parent.reset();
   start();
-  swapRows(parent, diff);
+  rows = swapRows(parent, diff);
+  console.assert(parent.childNodes.every((row, i) => row === rows[i]));
   stop(parent.count(), 2);
   parent.reset();
 
