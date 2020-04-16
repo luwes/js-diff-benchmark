@@ -18,6 +18,7 @@ const libs = [
 
 let rows;
 let out;
+let shuffleSeed;
 
 libs.forEach(lib => {
   const file = `libs/${lib}.js`;
@@ -30,6 +31,14 @@ libs.forEach(lib => {
   //* warm up + checking everything works upfront
   create1000(parent, diff);
   console.assert(parent.childNodes.length === 1000);
+
+  if (!shuffleSeed) {
+    // create a fixed shuffled seed so each library does the same.
+    const shuffle = Array.from(parent.childNodes)
+      .sort(() => Math.random() - Math.random());
+    shuffleSeed = shuffle.map(node => parent.childNodes.indexOf(node));
+  }
+
   append1000(parent, diff);
   console.assert(parent.childNodes.length === 2000);
   clear(parent, diff);
@@ -215,7 +224,7 @@ function random(parent, diff) {
   return diff(
     parent,
     parent.childNodes,
-    Array.from(parent.childNodes).sort(() => Math.random() - Math.random()),
+    shuffleSeed.map(newIdx => parent.childNodes[newIdx]),
     parent.lastElementChild
   );
 }
