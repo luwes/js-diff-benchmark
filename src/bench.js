@@ -3,7 +3,7 @@ const c = require('ansi-colors');
 var Terser = require('terser');
 const gzipSize = require('gzip-size');
 
-const {Dommy, Nody, get} = require('./dommy.js');
+const {Dommy, Nody} = require('./dommy.js');
 
 let parent = new Dommy();
 
@@ -216,7 +216,6 @@ function random(parent, diff) {
     parent,
     parent.childNodes,
     Array.from(parent.childNodes).sort(() => Math.random() - Math.random()),
-    get,
     parent.lastElementChild
   );
 }
@@ -226,7 +225,6 @@ function reverse(parent, diff) {
     parent,
     parent.childNodes,
     Array.from(parent.childNodes).reverse(),
-    get,
     parent.lastElementChild
   );
 }
@@ -240,7 +238,6 @@ function append1000(parent, diff) {
     parent,
     parent.childNodes,
     childNodes,
-    get,
     parent.lastElementChild
   );
 }
@@ -250,7 +247,6 @@ function clear(parent, diff) {
     parent,
     parent.childNodes,
     [],
-    get,
     parent.lastElementChild
   );
 }
@@ -264,7 +260,6 @@ function create1000(parent, diff) {
     parent,
     parent.childNodes,
     childNodes,
-    get,
     parent.lastElementChild
   );
 }
@@ -277,7 +272,6 @@ function create10000(parent, diff) {
     parent,
     parent.childNodes,
     childNodes,
-    get,
     parent.lastElementChild
   );
 }
@@ -291,7 +285,6 @@ function swapRows(parent, diff) {
     parent,
     parent.childNodes,
     childNodes,
-    get,
     parent.lastElementChild
   );
 }
@@ -304,7 +297,6 @@ function updateEach10thRow(parent, diff) {
     parent,
     parent.childNodes,
     childNodes,
-    get,
     parent.lastElementChild
   );
 }

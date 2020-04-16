@@ -1,5 +1,5 @@
 // a is old list, b is the new
-module.exports = function(parent, a, b, get, before) {
+module.exports = function(parent, a, b, before) {
   const aIdx = new Map();
   const bIdx = new Map();
   let i;
@@ -22,11 +22,11 @@ module.exports = function(parent, a, b, get, before) {
       i++;
     } else if (b.length <= j) {
       // No more elements in new, this is a delete
-      parent.removeChild(get(a[i], -1));
+      parent.removeChild(a[i]);
       i++;
     } else if (a.length <= i) {
       // No more elements in old, this is an addition
-      parent.insertBefore(get(bElm, 1), get(a[i], 0) || before);
+      parent.insertBefore(bElm, a[i] || before);
       j++;
     } else if (aElm === bElm) {
       // No difference, we move on
@@ -40,20 +40,20 @@ module.exports = function(parent, a, b, get, before) {
       var wantedElmInOld = aIdx.get(bElm);
       if (curElmInNew === undefined) {
         // Current element is not in new list, it has been removed
-        parent.removeChild(get(a[i], -1));
+        parent.removeChild(a[i]);
         i++;
       } else if (wantedElmInOld === undefined) {
         // New element is not in old list, it has been added
         parent.insertBefore(
-          get(bElm, 1),
-          get(a[i], 0) || before
+          bElm,
+          a[i] || before
         );
         j++;
       } else {
         // Element is in both lists, it has been moved
         parent.insertBefore(
-          get(a[wantedElmInOld], 1),
-          get(a[i], 0) || before
+          a[wantedElmInOld],
+          a[i] || before
         );
         a[wantedElmInOld] = null;
         j++;

@@ -8,7 +8,7 @@
  * More Info:
  *  http://ejohn.org/projects/javascript-diff-algorithm/
  */
-module.exports = function(parent, o, n, get, before) {
+module.exports = function(parent, o, n, before) {
   var out = diff(o, n);
 
   if (out.n.length == 0) {

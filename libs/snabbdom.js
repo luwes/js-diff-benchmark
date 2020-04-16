@@ -1,5 +1,5 @@
 // a is old list, b is the new
-module.exports = function(parent, a, b, get, afterNode) {
+module.exports = function(parent, a, b, afterNode) {
   const a_index = new Map();
   const b_index = new Map();
 
@@ -33,15 +33,15 @@ module.exports = function(parent, a, b, get, afterNode) {
     }
     else if (start_a === end_b) {
       parent.insertBefore(
-        get(a[start_i], 1),
-        get(a[end_i], -0).nextSibling || afterNode
+        a[start_i],
+        a[end_i].nextSibling || afterNode
       );
       start_a = a[++start_i];
       end_b = b[--end_j];
     } else if (end_a === start_b) {
       parent.insertBefore(
-        get(a[end_i], 1),
-        get(a[start_i] || afterNode, 0)
+        a[end_i],
+        a[start_i] || afterNode
       );
       end_a = a[--end_i];
       start_b = b[++start_j];
@@ -73,8 +73,8 @@ module.exports = function(parent, a, b, get, afterNode) {
       // because it doesn't recursively diff and patch the replaced node.
       if (old_start_j === undefined && new_start_i === undefined) {
         parent.replaceChild(
-          get(start_b, 1),
-          get(a[start_i], -1) // old
+          start_b,
+          a[start_i] // old
         );
         start_a = a[++start_i];
         start_b = b[++start_j];
@@ -82,21 +82,21 @@ module.exports = function(parent, a, b, get, afterNode) {
       // Insertion
       else if (old_start_j === undefined) {
         parent.insertBefore(
-          get(start_b, 1),
-          get(a[start_i] || afterNode, 0)
+          start_b,
+          a[start_i] || afterNode
         );
         start_b = b[++start_j];
       }
       // Deletion
       else if (new_start_i === undefined) {
-        parent.removeChild(get(start_a, -1));
+        parent.removeChild(start_a);
         start_a = a[++start_i];
       }
       // Move
       else {
         parent.insertBefore(
-          get(start_b, 1),
-          get(a[start_i] || afterNode, 0)
+          start_b,
+          a[start_i] || afterNode
         );
         a[old_start_j] = null;
         start_b = b[++start_j];
@@ -106,11 +106,11 @@ module.exports = function(parent, a, b, get, afterNode) {
   if (start_i <= end_i || start_j <= end_j) {
     if (start_i > end_i) { // old list exhausted; process new list additions
       for (start_j; start_j <= end_j; start_b = b[++start_j]) {
-        parent.insertBefore(get(start_b, 1), get(afterNode, 0));
+        parent.insertBefore(start_b, afterNode);
       }
     } else { // new list exhausted; process old list removals
       for (start_i; start_i <= end_i; ++start_i) {
-        parent.removeChild(get(a[start_i], -1));
+        parent.removeChild(a[start_i]);
       }
     }
   }

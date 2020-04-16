@@ -25,7 +25,7 @@
  * @param {Node} [before] The optional node used as anchor to insert before.
  * @returns {Node[]} The same list of future children.
  */
-module.exports = (parentNode, a, b, get, before) => {
+module.exports = (parentNode, a, b, before) => {
   const bLength = b.length;
   let aEnd = a.length;
   let bEnd = bLength;
@@ -41,18 +41,18 @@ module.exports = (parentNode, a, b, get, before) => {
       // must be retrieved, otherwise it's gonna be the first item.
       const node = bEnd < bLength ?
         (bStart ?
-          (get(b[bStart - 1], -0).nextSibling) :
-          get(b[bEnd - bStart], 0)) :
+          (b[bStart - 1].nextSibling) :
+          b[bEnd - bStart]) :
         before;
       while (bStart < bEnd)
-        parentNode.insertBefore(get(b[bStart++], 1), node);
+        parentNode.insertBefore(b[bStart++], node);
     }
     // remove head or tail: fast path
     else if (bEnd === bStart) {
       while (aStart < aEnd) {
         // remove the node only if it's unknown or not live
         if (!map || !map.has(a[aStart]))
-          parentNode.removeChild(get(a[aStart], -1));
+          parentNode.removeChild(a[aStart]);
         aStart++;
       }
     }
@@ -79,12 +79,12 @@ module.exports = (parentNode, a, b, get, before) => {
       // or asymmetric too
       // [1, 2, 3, 4, 5]
       // [1, 2, 3, 5, 6, 4]
-      const node = get(a[--aEnd], -1).nextSibling;
+      const node = a[--aEnd].nextSibling;
       parentNode.insertBefore(
-        get(b[bStart++], 1),
-        get(a[aStart++], -1).nextSibling
+        b[bStart++],
+        a[aStart++].nextSibling
       );
-      parentNode.insertBefore(get(b[--bEnd], 1), node);
+      parentNode.insertBefore(b[--bEnd], node);
       // mark the future index as identical (yeah, it's dirty, but cheap 👍)
       // The main reason to do this, is that when a[aEnd] will be reached,
       // the loop will likely be on the fast path, as identical to b[bEnd].
@@ -128,17 +128,17 @@ module.exports = (parentNode, a, b, get, before) => {
           // this would place 7 before 1 and, from that time on, 1, 2, and 3
           // will be processed at zero cost
           if (sequence > (index - bStart)) {
-            const node = get(a[aStart], 0);
+            const node = a[aStart];
             while (bStart < index)
-              parentNode.insertBefore(get(b[bStart++], 1), node);
+              parentNode.insertBefore(b[bStart++], node);
           }
           // if the effort wasn't good enough, fallback to a replace,
           // moving both source and target indexes forward, hoping that some
           // similar node will be found later on, to go back to the fast path
           else {
             parentNode.replaceChild(
-              get(b[bStart++], 1),
-              get(a[aStart++], -1)
+              b[bStart++],
+              a[aStart++]
             );
           }
         }
@@ -150,7 +150,7 @@ module.exports = (parentNode, a, b, get, before) => {
       // to remove it, and check the next live node out instead, meaning
       // that only the live list index should be forwarded
       else
-        parentNode.removeChild(get(a[aStart++], -1));
+        parentNode.removeChild(a[aStart++]);
     }
   }
   return b;
