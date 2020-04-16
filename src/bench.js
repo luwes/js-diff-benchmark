@@ -94,11 +94,11 @@ libs.forEach((lib) => {
   let begin;
   const start = () => (begin = microtime.now());
   const stop = (count, operationMax) => {
+    const delta = parent.count() - operationMax;
     libResults.push(`${round((microtime.now() - begin) / 1000)}ms
-${c.gray(parent.count())}
-${
-  count > operationMax ? c.bgRed.black(`+${parent.count() - operationMax}`) : ''
-}`);
+${c.gray(parent.count())}${count > operationMax
+    ? (delta > 99 ? '\n' : ' ') + c.bgRed.black(`+${delta}`)
+    : '' }`);
   };
 
   // actual benchmark
