@@ -15,7 +15,7 @@ Simple benchmark for testing your DOM diffing algorithm.
 
 ## Screenshot
 
-<img src="assets/Screen Shot 2020-04-16 at 6.55.04 PM.png" alt="js-diff-benchmark">
+<img src="assets/Screen Shot 2020-04-16 at 7.35.54 PM.png" alt="js-diff-benchmark">
 
 ## Credits
 
