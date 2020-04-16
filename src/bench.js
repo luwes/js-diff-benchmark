@@ -2,8 +2,10 @@ const fs = require('fs');
 const c = require('ansi-colors');
 var Terser = require('terser');
 const gzipSize = require('gzip-size');
+const Table = require('cli-table');
+const microtime = require('microtime');
 
-const {Dommy, Nody} = require('./dommy.js');
+const { Dommy, Nody } = require('./dommy.js');
 
 let parent = new Dommy();
 
@@ -16,17 +18,40 @@ const libs = [
   'udomdiff',
 ];
 
+const cols = [
+  '',
+  '1k',
+  'Shuffle',
+  'Inverse',
+  'Clear',
+  'Append',
+  'Swap 2',
+  'Edit 10th',
+  '10k',
+  'Swap 2',
+  'Total',
+  'Size',
+];
+const table = new Table({
+  head: cols,
+  colAligns: cols.map(() => 'middle'),
+  style: {
+    head: ['green'],
+  }
+});
+
 let rows;
-let out;
 let shuffleSeed;
 
-libs.forEach(lib => {
+libs.forEach((lib) => {
+  const libResults = [];
+  table.push({ [lib.slice(0, 7)]: libResults });
+
   const file = `libs/${lib}.js`;
   const diff = require(`../${file}`);
 
   var code = fs.readFileSync(file, 'utf8');
   var gzip = gzipSize.sync(Terser.minify(code).code);
-  console.log(`${c.bgGreen.black(` ${lib.toUpperCase()} ${gzip}B `)}\n`);
 
   //* warm up + checking everything works upfront
   create1000(parent, diff);
@@ -34,9 +59,10 @@ libs.forEach(lib => {
 
   if (!shuffleSeed) {
     // create a fixed shuffled seed so each library does the same.
-    const shuffle = Array.from(parent.childNodes)
-      .sort(() => Math.random() - Math.random());
-    shuffleSeed = shuffle.map(node => parent.childNodes.indexOf(node));
+    const shuffle = Array.from(parent.childNodes).sort(
+      () => Math.random() - Math.random()
+    );
+    shuffleSeed = shuffle.map((node) => parent.childNodes.indexOf(node));
   }
 
   append1000(parent, diff);
@@ -61,170 +87,135 @@ libs.forEach(lib => {
   console.assert(parent.childNodes.length === 0);
   //*/
 
-  console.time(lib.toUpperCase());
+  // console.time(lib.toUpperCase());
+
+  const totalStart = microtime.now();
+
+  let begin;
+  const start = () => (begin = microtime.now());
+  const stop = (count, operationMax) => {
+    libResults.push(`${round((microtime.now() - begin) / 1000)}ms
+${c.gray(parent.count())}
+${
+  count > operationMax ? c.bgRed.black(`+${parent.count() - operationMax}`) : ''
+}`);
+  };
 
   // actual benchmark
   parent.reset();
-  console.time('create 1000');
+  start();
   rows = create1000(parent, diff);
-  console.timeEnd('create 1000');
+  stop(parent.count(), 1000);
   console.assert(parent.childNodes.every((row, i) => row === rows[i]));
-  out = ['operations', parent.count()];
-  if (parent.count() > 1000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
-  }
-  console.log(...out, '\n');
   parent.reset();
 
-  console.time('random');
+  start();
   rows = random(parent, diff);
-  console.timeEnd('random');
+  stop(parent.count(), 1000);
   console.assert(parent.childNodes.every((row, i) => row === rows[i]));
-  out = ['operations', parent.count()];
-  if (parent.count() > 1000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
-  }
-  console.log(...out, '\n');
   parent.reset();
 
-  console.time('reverse');
+  start();
   rows = reverse(parent, diff);
-  console.timeEnd('reverse');
+  stop(parent.count(), 1000);
   console.assert(parent.childNodes.every((row, i) => row === rows[i]));
-  out = ['operations', parent.count()];
-  if (parent.count() > 1000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
-  }
-  console.log(...out, '\n');
   parent.reset();
 
-  console.time('clear');
+  start();
   rows = clear(parent, diff);
-  console.timeEnd('clear');
-  console.assert(parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 0);
-  out = ['operations', parent.count()];
-  if (parent.count() > 1000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
-  }
-  console.log(...out, '\n');
+  stop(parent.count(), 1000);
+  console.assert(
+    parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 0
+  );
   parent.reset();
 
   create1000(parent, diff);
   parent.reset();
-  console.time('replace 1000');
   rows = create1000(parent, diff);
-  console.timeEnd('replace 1000');
   console.assert(parent.childNodes.every((row, i) => row === rows[i]));
-  out = ['operations', parent.count()];
-  if (parent.count() > 2000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 2000}`)}`);
-  }
-  console.log(...out, '\n');
   clear(parent, diff);
   parent.reset();
 
   create1000(parent, diff);
   parent.reset();
-  console.time('append 1000');
+  start();
   rows = append1000(parent, diff);
-  console.timeEnd('append 1000');
-  console.assert(parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 2000);
-  out = ['operations', parent.count()];
-  if (parent.count() > 1000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
-  }
-  console.log(...out, '\n');
+  stop(parent.count(), 1000);
+  console.assert(
+    parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 2000
+  );
   parent.reset();
 
-  console.time('append more');
   rows = append1000(parent, diff);
-  console.timeEnd('append more');
-  console.assert(parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 3000);
-  out = ['operations', parent.count()];
-  if (parent.count() > 1000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 1000}`)}`);
-  }
-  console.log(...out, '\n');
+  console.assert(
+    parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 3000
+  );
   parent.reset();
   clear(parent, diff);
 
   create1000(parent, diff);
   parent.reset();
-  console.time('swap rows');
+  start();
   swapRows(parent, diff);
-  console.timeEnd('swap rows');
-  out = ['operations', parent.count()];
-  if (parent.count() > 2) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 2}`)}`);
-  }
-  console.log(...out, '\n');
+  stop(parent.count(), 2);
   parent.reset();
 
   create1000(parent, diff);
   parent.reset();
-  console.time('update every 10th row');
+  start();
   updateEach10thRow(parent, diff);
-  console.timeEnd('update every 10th row');
-  out = ['operations', parent.count()];
-  if (parent.count() > 200) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 200}`)}`);
-  }
-  console.log(...out, '\n');
+  stop(parent.count(), 200);
   parent.reset();
 
   clear(parent, diff);
   parent.reset();
-  console.time('create 10000 rows');
+  start();
   create10000(parent, diff);
-  console.timeEnd('create 10000 rows');
-  out = ['operations', parent.count()];
-  if (parent.count() > 10000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 10000}`)}`);
-  }
-  console.log(...out, '\n');
+  stop(parent.count(), 10000);
   parent.reset();
 
-  console.time('swap over 10000 rows');
+  start();
   swapRows(parent, diff);
-  console.timeEnd('swap over 10000 rows');
-  out = ['operations', parent.count()];
-  if (parent.count() > 2) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 2}`)}`);
-  }
-  console.log(...out, '\n');
+  stop(parent.count(), 2);
   parent.reset();
 
-  console.time('clear 10000');
   clear(parent, diff);
-  console.timeEnd('clear 10000');
-  out = ['operations', parent.count()];
-  if (parent.count() > 10000) {
-    out.push(`${c.bgRed.black(`+${parent.count() - 10000}`)}`);
-  }
-  console.log(...out, '\n');
   parent.reset();
 
   //*/
 
-  console.timeEnd(lib.toUpperCase());
+  libResults.push(`${round((microtime.now() - totalStart) / 1000)}ms`);
+  libResults.push(`${gzip}B`);
 
-  const used = process.memoryUsage().heapUsed / 1024 / 1024;
-  console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
+  // const used = process.memoryUsage().heapUsed / 1024 / 1024;
+  // console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
 
   try {
-    if (global.gc) {global.gc();}
+    if (global.gc) {
+      global.gc();
+    }
   } catch (e) {
     process.exit();
   }
-
-  console.log('\n*******************************************\n');
 });
+
+table.sort((a, b) => {
+  a = Object.values(a)[0];
+  b = Object.values(b)[0];
+  return parseInt(a[a.length - 2]) - parseInt(b[b.length - 2]);
+});
+
+console.log(table.toString());
+
+function round(num) {
+  return Math.round((num + Number.EPSILON) * 10) / 10;
+}
 
 function random(parent, diff) {
   return diff(
     parent,
     parent.childNodes,
-    shuffleSeed.map(newIdx => parent.childNodes[newIdx]),
+    shuffleSeed.map((newIdx) => parent.childNodes[newIdx]),
     parent.lastElementChild
   );
 }
@@ -241,48 +232,25 @@ function reverse(parent, diff) {
 function append1000(parent, diff) {
   const start = parent.childNodes.length - 1;
   const childNodes = parent.childNodes.slice();
-  for (let i = 0; i < 1000; i++)
-    childNodes.push(new Nody(parent, start + i));
-  return diff(
-    parent,
-    parent.childNodes,
-    childNodes,
-    parent.lastElementChild
-  );
+  for (let i = 0; i < 1000; i++) childNodes.push(new Nody(parent, start + i));
+  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
 }
 
 function clear(parent, diff) {
-  return diff(
-    parent,
-    parent.childNodes,
-    [],
-    parent.lastElementChild
-  );
+  return diff(parent, parent.childNodes, [], parent.lastElementChild);
 }
 
 function create1000(parent, diff) {
   const start = parent.childNodes.length;
   const childNodes = [];
-  for (let i = 0; i < 1000; i++)
-    childNodes.push(new Nody(parent, start + i));
-  return diff(
-    parent,
-    parent.childNodes,
-    childNodes,
-    parent.lastElementChild
-  );
+  for (let i = 0; i < 1000; i++) childNodes.push(new Nody(parent, start + i));
+  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
 }
 
 function create10000(parent, diff) {
   const childNodes = [];
-  for (let i = 0; i < 10000; i++)
-    childNodes.push(new Nody(parent, i));
-  return diff(
-    parent,
-    parent.childNodes,
-    childNodes,
-    parent.lastElementChild
-  );
+  for (let i = 0; i < 10000; i++) childNodes.push(new Nody(parent, i));
+  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
 }
 
 function swapRows(parent, diff) {
@@ -290,22 +258,12 @@ function swapRows(parent, diff) {
   const $1 = childNodes[1];
   childNodes[1] = childNodes[998];
   childNodes[998] = $1;
-  return diff(
-    parent,
-    parent.childNodes,
-    childNodes,
-    parent.lastElementChild
-  );
+  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
 }
 
 function updateEach10thRow(parent, diff) {
   const childNodes = parent.childNodes.slice();
   for (let i = 0; i < childNodes.length; i += 10)
     childNodes[i] = new Nody(parent, i + '!');
-  return diff(
-    parent,
-    parent.childNodes,
-    childNodes,
-    parent.lastElementChild
-  );
+  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
 }
