@@ -48,6 +48,7 @@ class Dommy {
     if (index < 0)
       throw new Error('invalid insertBefore');
     this._childNodes.splice(index, 0, newNode);
+    return newNode;
   }
   appendChild(newNode) {
     this.insertBefore(newNode);
@@ -61,6 +62,7 @@ class Dommy {
     if (index < 0)
       throw new Error('invalid replaceChild');
     this._childNodes.splice(index, 1, newNode);
+    return oldNode;
   }
   removeChild(node) {
     this.operations.push(`removeChild(${node.value})`);
@@ -68,6 +70,7 @@ class Dommy {
     if (index < 0)
       throw new Error('invalid removeChild');
     this._childNodes.splice(index, 1);
+    return node;
   }
   count() {
     return this.operations.length;
