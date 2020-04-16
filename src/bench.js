@@ -13,6 +13,7 @@ const libs = [
   'list-difference',
   'snabbdom',
   'udomdiff',
+  'spect',
 ];
 
 let rows;
