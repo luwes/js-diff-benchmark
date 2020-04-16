@@ -11,9 +11,9 @@ const libs = [
   'heckel',
   'stage0',
   'list-difference',
+  'spect',
   'snabbdom',
   'udomdiff',
-  'spect',
 ];
 
 let rows;

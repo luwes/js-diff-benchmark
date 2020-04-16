@@ -6,12 +6,12 @@ Simple benchmark for testing your DOM diffing algorithm.
 
 | Position | Library | Size | Speed |
 | --- | --- | --- | --- |
-| 🏆 1 | [udomdiff](https://github.com/WebReflection/udomdiff) | 397B | ~264ms |
-| 2 | [snabbdom](https://github.com/snabbdom/snabbdom) | 412B | ~265ms |
-| 3 | [spect](https://github.com/spectjs/spect) | 297B | ~267ms |
-| 4 | [list-difference](https://github.com/paldepind/list-difference/) | 271B | ~311ms |
-| 5 | [stage0](https://github.com/Freak613/stage0) | 941B | ~358ms |
-| 6 | [heckel](https://johnresig.com/projects/javascript-diff-algorithm/) | 449B | ~499ms |
+| 🏆 1 | [udomdiff](https://github.com/WebReflection/udomdiff) | 397B | ~241ms |
+| 2 | [snabbdom](https://github.com/snabbdom/snabbdom) | 412B | ~245ms |
+| 3 | [spect](https://github.com/spectjs/spect) | 297B | ~262ms |
+| 4 | [list-difference](https://github.com/paldepind/list-difference/) | 271B | ~289ms |
+| 5 | [stage0](https://github.com/Freak613/stage0) | 941B | ~326ms |
+| 6 | [heckel](https://johnresig.com/projects/javascript-diff-algorithm/) | 449B | ~481ms |
 
 ---
 
