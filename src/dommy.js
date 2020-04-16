@@ -86,7 +86,7 @@ class Dommy {
 
 class Nody {
   constructor(dommy, value) {
-    this.dommy = dommy;
+    Object.defineProperty(this, 'dommy', { value: dommy, enumerable:false })
     this.value = value;
   }
   get nextSibling() {
