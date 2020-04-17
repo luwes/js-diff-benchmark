@@ -33,7 +33,7 @@ class Siblings {
     if (parentNode) {
       const {childNodes} = parentNode;
       const i = childNodes.indexOf(this) + 1;
-      if (-1 < i && i < childNodes.length)
+      if (0 < i && i < childNodes.length)
         return childNodes[i];
     }
     return null;
