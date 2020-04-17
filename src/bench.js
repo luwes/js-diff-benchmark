@@ -4,10 +4,7 @@ var Terser = require('terser');
 const gzipSize = require('gzip-size');
 const Table = require('cli-table');
 const microtime = require('microtime');
-
-const { Dommy, Nody } = require('./dommy.js');
-
-let parent = new Dommy();
+const document = require('./dommy.js');
 
 const libs = [
   'heckel',
@@ -25,6 +22,7 @@ const cols = [
   'Invers',
   'Clear',
   'Append',
+  'Prepend',
   'Swap2',
   'Up10th',
   '10k',
@@ -32,6 +30,7 @@ const cols = [
   'Total',
   'Size',
 ];
+
 const table = new Table({
   head: cols,
   colAligns: cols.map(() => 'middle'),
@@ -40,12 +39,17 @@ const table = new Table({
   },
 });
 
-let rows;
 let shuffleSeed;
 
+// in case we'd like to test "pinnability" of the differ
+let before;// = document.createTextNode('<!--pin-->');
+let parent = document.createElement('div');
+instrument(parent);
+
 libs.forEach((lib) => {
+
   const libResults = [];
-  table.push({ [lib.slice(0, 7)]: libResults });
+  table.push({ [lib.slice(0, 8)]: libResults });
 
   const file = `libs/${lib}.js`;
   const diff = require(`../${file}`);
@@ -53,38 +57,81 @@ libs.forEach((lib) => {
   var code = fs.readFileSync(file, 'utf8');
   var gzip = gzipSize.sync(Terser.minify(code).code);
 
+  // clean up the parent
+  parent.textContent = '';
+  if (before)
+    parent.appendChild(before);
+
   //* warm up + checking everything works upfront
-  create1000(parent, diff);
-  console.assert(parent.childNodes.length === 1000);
+  let childNodes = create1000(parent, diff, []);
+  console.assert(verifyNodes(parent, childNodes, 1000), '%s warmup create', lib);
 
   if (!shuffleSeed) {
     // create a fixed shuffled seed so each library does the same.
-    const shuffle = Array.from(parent.childNodes).sort(
+    const shuffle = childNodes.slice().sort(
       () => Math.random() - Math.random()
     );
-    shuffleSeed = shuffle.map((node) => parent.childNodes.indexOf(node));
+    shuffleSeed = shuffle.map((node) => childNodes.indexOf(node));
   }
 
-  append1000(parent, diff);
-  console.assert(parent.childNodes.length === 2000);
-  clear(parent, diff);
-  console.assert(parent.childNodes.length === 0);
-  create10000(parent, diff);
-  console.assert(parent.childNodes.length === 10000);
-  clear(parent, diff);
-  console.assert(parent.childNodes.length === 0);
-  create1000(parent, diff);
-  swapRows(parent, diff);
-  console.assert(parent.childNodes[1].value == 998);
-  console.assert(parent.childNodes[998].value == 1);
-  clear(parent, diff);
-  create1000(parent, diff);
-  updateEach10thRow(parent, diff);
-  console.assert(/!$/.test(parent.childNodes[0].value));
-  console.assert(!/!$/.test(parent.childNodes[1].value));
-  console.assert(/!$/.test(parent.childNodes[10].value));
-  clear(parent, diff);
-  console.assert(parent.childNodes.length === 0);
+  childNodes = append1000(parent, diff, childNodes);
+  console.assert(
+    verifyNodes(parent, childNodes, 2000),
+    '%s warmup append',
+    lib
+  );
+  childNodes = prepend1000(parent, diff, childNodes);
+  console.assert(
+    verifyNodes(parent, childNodes, 3000),
+    '%s warmup prepend',
+    lib
+  );
+  childNodes = clear(parent, diff, childNodes);
+  console.assert(
+    verifyNodes(parent, childNodes, 0),
+    '%s warmup clear',
+    lib
+  );
+  childNodes = create10000(parent, diff, childNodes);
+  console.assert(
+    verifyNodes(parent, childNodes, 10000),
+    '%s warmup 10k',
+    lib
+  );
+  childNodes = clear(parent, diff, childNodes);
+  console.assert(
+    verifyNodes(parent, childNodes, 0),
+    '%s warmup clear 10k',
+    lib
+  );
+  childNodes = create1000(parent, diff, childNodes);
+  childNodes = swapRows(parent, diff, childNodes);
+  console.assert(childNodes[1].textContent == 998, '%s warmup swap', lib);
+  console.assert(childNodes[998].textContent == 1, '%s warmup swap', lib);
+  childNodes = clear(parent, diff, childNodes);
+  childNodes = create1000(parent, diff, childNodes);
+  childNodes = updateEach10thRow(parent, diff, childNodes);
+  console.assert(
+    /!$/.test(childNodes[0].textContent),
+    '%s warmup update',
+    lib
+  );
+  console.assert(
+    !/!$/.test(childNodes[1].textContent),
+    '%s warmup update',
+    lib
+  );
+  console.assert(
+    /!$/.test(childNodes[10].textContent),
+    '%s warmup update',
+    lib
+  );
+  childNodes = clear(parent, diff, childNodes);
+  console.assert(
+    verifyNodes(parent, childNodes, 0),
+    '%s warmup clear',
+    lib
+  );
   //*/
 
   // console.time(lib.toUpperCase());
@@ -94,9 +141,9 @@ libs.forEach((lib) => {
   let begin;
   const start = () => (begin = microtime.now());
   const stop = (count, operationMax) => {
-    const delta = parent.count() - operationMax;
+    const delta = count - operationMax;
     libResults.push(`${round((microtime.now() - begin) / 1000)}ms
-${c.gray(parent.count())}${
+${c.gray(count)}${
       count > operationMax
         ? (delta > 99 ? '\n' : ' ') + c.bgRed.black(`+${delta}`)
         : ''
@@ -104,103 +151,106 @@ ${c.gray(parent.count())}${
   };
 
   // actual benchmark
-  parent.reset();
+  reset(parent);
   start();
-  rows = create1000(parent, diff);
-  stop(parent.count(), 1000);
+  childNodes = create1000(parent, diff, childNodes);
+  stop(parent.operations.length, 1000);
   console.assert(
-    parent.childNodes.every((row, i) => row === rows[i]),
+    verifyNodes(parent, childNodes, 1000),
     '%s 1k',
     lib
   );
-  parent.reset();
+  reset(parent);
 
   start();
-  rows = random(parent, diff);
-  stop(parent.count(), 1000);
+  childNodes = random(parent, diff, childNodes);
+  stop(parent.operations.length, 1000);
   console.assert(
-    parent.childNodes.every((row, i) => row === rows[i]),
+    verifyNodes(parent, childNodes, 1000),
     '%s random',
     lib
   );
-  parent.reset();
+  reset(parent);
 
   start();
-  rows = reverse(parent, diff);
-  stop(parent.count(), 1000);
+  childNodes = reverse(parent, diff, childNodes);
+  stop(parent.operations.length, 1000);
   console.assert(
-    parent.childNodes.every((row, i) => row === rows[i]),
+    verifyNodes(parent, childNodes, 1000),
     '%s reverse',
     lib
   );
-  parent.reset();
+  reset(parent);
 
   start();
-  rows = clear(parent, diff);
-  stop(parent.count(), 1000);
+  childNodes = clear(parent, diff, childNodes);
+  stop(parent.operations.length, 1000);
   console.assert(
-    parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 0,
+    verifyNodes(parent, childNodes, 0),
     '%s clear',
     lib
   );
-  parent.reset();
+  reset(parent);
 
-  create1000(parent, diff);
-  parent.reset();
-  rows = create1000(parent, diff);
-  console.assert(parent.childNodes.every((row, i) => row === rows[i]));
-  clear(parent, diff);
-  parent.reset();
+  childNodes = create1000(parent, diff, childNodes);
+  reset(parent);
+  childNodes = create1000(parent, diff, childNodes);
+  console.assert(verifyNodes(parent, childNodes, 1000));
+  childNodes = clear(parent, diff, childNodes);
+  reset(parent);
 
-  create1000(parent, diff);
-  parent.reset();
+  childNodes = create1000(parent, diff, childNodes);
+  reset(parent);
   start();
-  rows = append1000(parent, diff);
-  stop(parent.count(), 1000);
+  childNodes = append1000(parent, diff, childNodes);
+  stop(parent.operations.length, 2000);
   console.assert(
-    parent.childNodes.every((row, i) => row === rows[i]) &&
-      rows.length === 2000,
+    verifyNodes(parent, childNodes, 2000),
     '%s append 1k',
     lib
   );
-  parent.reset();
+  reset(parent);
 
-  rows = append1000(parent, diff);
+  start();
+  childNodes = prepend1000(parent, diff, childNodes);
+  stop(parent.operations.length, 1000);
   console.assert(
-    parent.childNodes.every((row, i) => row === rows[i]) && rows.length === 3000
+    verifyNodes(parent, childNodes, 3000),
+    '%s prepend 1k',
+    lib
   );
-  parent.reset();
-  clear(parent, diff);
+  reset(parent);
+  childNodes = clear(parent, diff, childNodes);
 
-  create1000(parent, diff);
-  parent.reset();
+  childNodes = create1000(parent, diff, childNodes);
+  reset(parent);
   start();
-  rows = swapRows(parent, diff);
-  console.assert(parent.childNodes.every((row, i) => row === rows[i]));
-  stop(parent.count(), 2);
-  parent.reset();
+  childNodes = swapRows(parent, diff, childNodes);
+  console.assert(verifyNodes(parent, childNodes, 1000));
+  stop(parent.operations.length, 2);
+  reset(parent);
 
-  create1000(parent, diff);
-  parent.reset();
+  childNodes = create1000(parent, diff, childNodes);
+  reset(parent);
   start();
-  updateEach10thRow(parent, diff);
-  stop(parent.count(), 200);
-  parent.reset();
+  childNodes = updateEach10thRow(parent, diff, childNodes);
+  stop(parent.operations.length, 200);
+  reset(parent);
 
-  clear(parent, diff);
-  parent.reset();
+  childNodes = clear(parent, diff, childNodes);
+  reset(parent);
   start();
-  create10000(parent, diff);
-  stop(parent.count(), 10000);
-  parent.reset();
+  childNodes = create10000(parent, diff, childNodes);
+  stop(parent.operations.length, 10000);
+  reset(parent);
 
   start();
-  swapRows(parent, diff);
-  stop(parent.count(), 2);
-  parent.reset();
+  childNodes = swapRows(parent, diff, childNodes);
+  stop(parent.operations.length, 2);
+  reset(parent);
 
-  clear(parent, diff);
-  parent.reset();
+  childNodes = clear(parent, diff, childNodes);
+  reset(parent);
 
   //*/
 
@@ -227,63 +277,125 @@ table.sort((a, b) => {
 
 console.log(table.toString());
 
+
+// Benchnmark Utilities
+
+function instrument(parent) {
+  const {
+    appendChild,
+    insertBefore,
+    removeChild,
+    replaceChild
+  } = parent;
+  parent.operations = [];
+  parent.appendChild = function (newNode) {
+    this.operations.push(`appendChild(${newNode.textContent})`);
+    return appendChild.call(this, newNode);
+  };
+  parent.insertBefore = function (newNode, oldNode) {
+    this.operations.push(
+      oldNode ?
+        `insertBefore(${newNode.textContent}, ${oldNode.textContent})` :
+        `insertBefore(${newNode.textContent})`
+    );
+    return insertBefore.call(this, newNode, oldNode);
+  };
+  parent.removeChild = function (oldNode) {
+    this.operations.push(`removeChild(${oldNode.textContent})`);
+    return removeChild.call(this, oldNode);
+  };
+  parent.replaceChild = function (newNode, oldNode) {
+    this.operations.push(
+      `delete#replaceChild(${newNode.textContent}, ${oldNode.textContent})`
+    );
+    this.operations.push(
+      `insert#replaceChild(${newNode.textContent}, ${oldNode.textContent})`
+    );
+    return replaceChild.call(this, newNode, oldNode);
+  };
+}
+
+function reset(parent) {
+  parent.operations.splice(0);
+}
+
 function round(num) {
   return Math.round((num + Number.EPSILON) * 10) / 10;
 }
 
-function random(parent, diff) {
+function verifyNodes(parent, childNodes, expected) {
+  return childNodes.length === expected &&
+          childNodes.every((row, i) => row === parent.childNodes[i]) &&
+          parent.childNodes.length === expected + (before ? 1 : 0) &&
+          (!before || parent.childNodes[expected] === before);
+}
+
+
+// Benchnmark Functions
+
+function random(parent, diff, oldNodes) {
   return diff(
     parent,
-    parent.childNodes,
-    shuffleSeed.map((newIdx) => parent.childNodes[newIdx]),
-    parent.lastElementChild
+    oldNodes,
+    shuffleSeed.map((newIdx) => oldNodes[newIdx]),
+    before
   );
 }
 
-function reverse(parent, diff) {
+function reverse(parent, diff, oldNodes) {
+  return diff(parent, oldNodes, oldNodes.slice().reverse(), before);
+}
+
+function append1000(parent, diff, oldNodes) {
+  const start = oldNodes.length;
+  const childNodes = oldNodes.slice();
+  for (let i = 0; i < 1000; i++)
+    childNodes.push(document.createTextNode(parent, start + i));
+  return diff(parent, oldNodes, childNodes, before);
+}
+
+function clear(parent, diff, oldNodes) {
+  return diff(parent, oldNodes, [], before);
+}
+
+function create1000(parent, diff, oldNodes) {
+  const childNodes = [];
+  for (let i = 0; i < 1000; i++)
+    childNodes.push(document.createTextNode(i));
+  return diff(parent, oldNodes, childNodes, before);
+}
+
+function create10000(parent, diff, oldNodes) {
+  const childNodes = [];
+  for (let i = 0; i < 10000; i++)
+    childNodes.push(document.createTextNode(i));
+  return diff(parent, oldNodes, childNodes, before);
+}
+
+function prepend1000(parent, diff, oldNodes) {
+  const childNodes = [];
+  for (let i = 0; i < 1000; i++)
+    childNodes.push(document.createTextNode(parent, -i));
   return diff(
     parent,
-    parent.childNodes,
-    Array.from(parent.childNodes).reverse(),
-    parent.lastElementChild
+    oldNodes,
+    childNodes.reverse().concat(oldNodes),
+    before
   );
 }
 
-function append1000(parent, diff) {
-  const start = parent.childNodes.length - 1;
-  const childNodes = parent.childNodes.slice();
-  for (let i = 0; i < 1000; i++) childNodes.push(new Nody(parent, start + i));
-  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
-}
-
-function clear(parent, diff) {
-  return diff(parent, parent.childNodes, [], parent.lastElementChild);
-}
-
-function create1000(parent, diff) {
-  const start = parent.childNodes.length;
-  const childNodes = [];
-  for (let i = 0; i < 1000; i++) childNodes.push(new Nody(parent, start + i));
-  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
-}
-
-function create10000(parent, diff) {
-  const childNodes = [];
-  for (let i = 0; i < 10000; i++) childNodes.push(new Nody(parent, i));
-  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
-}
-
-function swapRows(parent, diff) {
-  const childNodes = parent.childNodes.slice();
+function swapRows(parent, diff, oldNodes) {
+  const childNodes = oldNodes.slice();
   const $1 = childNodes[1];
-  childNodes[1] = childNodes[998];
-  childNodes[998] = $1;
-  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
+  const index = childNodes.length - 2;
+  childNodes[1] = childNodes[index];
+  childNodes[index] = $1;
+  return diff(parent, oldNodes, childNodes, before);
 }
 
-function updateEach10thRow(parent, diff) {
-  const childNodes = parent.childNodes.slice();
+function updateEach10thRow(parent, diff, oldNodes) {
+  const childNodes = oldNodes.slice();
   for (let i = 0; i < childNodes.length; i += 10)
-    childNodes[i] = new Nody(parent, i + '!');
-  return diff(parent, parent.childNodes, childNodes, parent.lastElementChild);
+    childNodes[i] = document.createTextNode(i + '!');
+  return diff(parent, oldNodes, childNodes, before);
 }
