@@ -15,93 +15,117 @@
  * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  * PERFORMANCE OF THIS SOFTWARE.
  */
-class Dommy {
-  constructor() {
-    this.reset();
-    this.lastElementChild = new Nody(this, '<!--$-->');
-    this._childNodes = [this.lastElementChild];
+
+const remove = node => {
+  const {parentNode} = node;
+  node.parentNode = null;
+  if (parentNode) {
+    const {childNodes} = parentNode;
+    const i = childNodes.indexOf(node);
+    if (-1 < i)
+      childNodes.splice(i, 1);
   }
-  get childNodes() {
-    return this._childNodes.slice(0, -1);
+};
+
+class Siblings {
+  get nextSibling() {
+    const {parentNode} = this;
+    if (parentNode) {
+      const {childNodes} = parentNode;
+      const i = childNodes.indexOf(this) + 1;
+      if (-1 < i && i < childNodes.length)
+        return childNodes[i];
+    }
+    return null;
+  }
+  get previousSibling() {
+    const {parentNode} = this;
+    if (parentNode) {
+      const {childNodes} = parentNode;
+      const i = childNodes.indexOf(this) - 1;
+      if (-1 < i)
+        return childNodes[i];
+    }
+    return null;
+  }
+}
+
+class Nody extends Siblings {
+  constructor(textContent) {
+    super();
+    this.parentNode = null;
+    this.textContent = textContent;
+  }
+}
+
+class Dommy extends Siblings {
+  constructor(tagName) {
+    super();
+    this.parentNode = null;
+    this.childNodes = [];
+    this.tagName = tagName;
   }
   get firstChild() {
     return this.childNodes[0];
   }
   get lastChild() {
-    return this.childNodes[this.childNodes.length-1];
+    return this.childNodes[this.childNodes.length - 1];
   }
   get textContent() {
-    return this.childNodes.map(node => node.value).join('');
+    return this.childNodes.map(node => node.textContent).join('');
   }
   set textContent(value) {
-    if (!value) {
-      this.reset();
-      this._childNodes = [this.lastElementChild];
-    }
-  }
-  insertBefore(newNode, liveNode) {
-    if (!liveNode) liveNode = this.lastElementChild;
-    this.operations.push(`insertBefore(${newNode.value}, ${liveNode.value})`);
-    if (newNode === liveNode) return;
-    this._removeChild(newNode);
-    const index = this._childNodes.indexOf(liveNode);
-    if (index < 0)
-      throw new Error('invalid insertBefore');
-    this._childNodes.splice(index, 0, newNode);
-    return newNode;
+    this.childNodes.splice(0).forEach(remove);
+    if (value)
+      this.appendChild(document.createTextNode(value));
   }
   appendChild(newNode) {
-    this.insertBefore(newNode);
+    if (!newNode)
+      throw new Error('invalid appendChild');
+    remove(newNode);
+    this.childNodes.push(newNode);
+    newNode.parentNode = this;
     return newNode;
   }
-  replaceChild(newNode, oldNode) {
-    this.operations.push(`delete#replaceChild(${newNode.value}, ${oldNode.value})`);
-    this.operations.push(`insert#replaceChild(${newNode.value}, ${oldNode.value})`);
-    this._removeChild(newNode);
-    const index = this.childNodes.indexOf(oldNode);
-    if (index < 0)
-      throw new Error('invalid replaceChild');
-    this._childNodes.splice(index, 1, newNode);
+  insertBefore(newNode, oldNode) {
+    if (newNode !== oldNode) {
+      remove(newNode);
+      const {childNodes} = this;
+      if (oldNode) {
+        const i = childNodes.indexOf(oldNode);
+        if (i < 0)
+          throw new Error('invalid insertBefore');
+        childNodes.splice(i, 0, newNode);
+      }
+      else
+        childNodes.push(newNode);
+      newNode.parentNode = this;
+    }
+    return newNode;
+  }
+  removeChild(oldNode) {
+    const {childNodes} = this;
+    const i = childNodes.indexOf(oldNode);
+    if (i < 0)
+      throw new Error('invalid removeChild');
+    childNodes.splice(i, 1);
+    oldNode.parentNode = null;
     return oldNode;
   }
-  removeChild(node) {
-    this.operations.push(`removeChild(${node.value})`);
-    const index = this.childNodes.indexOf(node);
-    if (index < 0)
-      throw new Error('invalid removeChild');
-    this._childNodes.splice(index, 1);
-    return node;
-  }
-  count() {
-    return this.operations.length;
-  }
-  reset() {
-    this.operations = [];
-  }
-  _removeChild(node) {
-    // use childNodes instead of _childNodes
-    // to preserve lastElementChild
-    const index = this.childNodes.indexOf(node);
-    if (-1 < index)
-      this._childNodes.splice(index, 1);
+  replaceChild(newNode, oldNode) {
+    remove(newNode);
+    const {childNodes} = this;
+    const i = childNodes.indexOf(oldNode);
+    if (i < 0)
+      throw new Error('invalid replaceChild');
+    childNodes[i] = newNode;
+    oldNode.parentNode = null;
+    newNode.parentNode = this;
+    return newNode;
   }
 }
 
-class Nody {
-  constructor(dommy, value) {
-    this.dommy = dommy;
-    this.value = value;
-  }
-  get nextSibling() {
-    const {childNodes, lastElementChild} = this.dommy;
-    const index = childNodes.indexOf(this) + 1;
-    return index < childNodes.length ? childNodes[index] : lastElementChild;
-  }
-  get previousSibling() {
-    const {_childNodes} = this.dommy;
-    const index = _childNodes.indexOf(this) - 1;
-    return index >= 0 ? _childNodes[index] : null;
-  }
-}
-
-module.exports = {Dommy, Nody};
+module.exports = {
+  createElement: tagName => new Dommy(tagName),
+  createTextNode: textContent => new Nody(textContent)
+};
