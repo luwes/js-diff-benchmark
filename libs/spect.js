@@ -1,51 +1,35 @@
-module.exports = function diff(parent, a, b, before) {
-  const bmap = new Map(),
-    amap = new Map(),
-    nextSibling = Array(a.length);
-  let i, j, ai, bj, ij, ji, previj, cur;
+module.exports = function merge (parent, a, b, before) {
+  let i, ai, bi, off, bidx = new Set(b), aidx = new Set(a)
 
-  // create index
-  for (i = 0; i < b.length; i++) bmap.set(b[i], i);
-  for (i = 0; i < a.length; i++) amap.set(a[i], i);
+  // walk by b from tail
+  // a: 1 2 3 4 5, b: 1 2 3 → off: +2
+  // ~i-- === i-- >= 0
+  for (i = b.length, off = a.length - i; ~i--; ) {
+    ai = a[i + off], bi = b[i]
 
-  // align items
-  for (i = 0, j = 0; i < a.length || j < b.length; i++, j++) {
-    (ai = a[i]), (bj = b[j]), (ij = bmap.get(ai)), (ji = amap.get(bj));
+    if (ai === bi) {}
 
-    // replaced
-    if (ai != null && bj != null && ij == null && ji == null) {
-      parent.replaceChild(bj, ai);
-      nextSibling[j] = a[i + 1];
-      nextSibling[j - 1] = bj;
-    }
-    // removed
-    else if (ai != null && ij == null) {
-      parent.removeChild(ai);
-      nextSibling[previj] = a[i + 1];
-      j--;
-    }
-    // added
-    else if (bj != null && ji == null) {
-      parent.insertBefore(bj, (nextSibling[j] = ai || before));
-      nextSibling[j - 1] = bj;
-      i--;
-    }
-    // moved
-    else {
-      nextSibling[ij] = a[i + 1];
+    else if (ai && !bidx.has(ai)) {
+      // replace (bi can be undefined in case of clearing the list)
+      if (bi && !aidx.has(bi)) parent.replaceChild(bi, ai)
+
+      // remove
+      else (parent.removeChild(ai), off--, i++)
     }
 
-    previj = ij;
+    else if (bi) {
+      if (bi.nextSibling != before || !bi.nextSibling) {
+        // move (skip since will be handled by the following b)
+        if (bidx.has(ai)) off--
+
+        // insert
+        parent.insertBefore(bi, before), off++
+      }
+    }
+
+    before = bi
   }
 
-  // reorder
-  for (cur = before, j = b.length; j--; ) {
-    bj = b[j];
-    if (nextSibling[j] != cur) {
-      parent.insertBefore(bj, cur);
-    }
-    cur = bj;
-  }
+  return b
+}
 
-  return b;
-};
