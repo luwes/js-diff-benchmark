@@ -1,27 +1,27 @@
 module.exports = function merge (parent, a, b) {
-  let i, j, ai, bj, bprevNext = a[0], bidx = new Set(b), aidx = new Set(a)
+  const bidx = new Set(b), aidx = new Set(a)
+  let i, cur = a[0], next, bi
 
-  for (i = 0, j = 0; j <= b.length; i++, j++) {
-    ai = a[i], bj = b[j]
+  for (i = 0; i <= b.length; i++) {
+    bi = b[i]
+    next = cur && cur.nextSibling
 
-    if (ai === bj) {}
+    // skip
+    if (cur === bi) cur = next
 
-    else if (ai && !bidx.has(ai)) {
-      // replace
-      if (bj && !aidx.has(bj)) parent.replaceChild(bj, ai)
-
-      // remove
-      else (parent.removeChild(ai), j--)
+    // remove
+    else if (cur && !bidx.has(cur)) {
+      parent.removeChild(cur), i--, cur = next
     }
-    else if (bj) {
-      // move - skips bj for the following swap
-      if (!aidx.has(bj)) i--
+    else if (bi) {
+      // swap (only 1:1 pairs)
+      if (aidx.has(bi) && b[i+1] === next) {
+        parent.insertBefore(cur, bi), cur = next
+      }
 
-      // insert after bj-1, bj
-      parent.insertBefore(bj, bprevNext)
+      // insert after bi-1, bi
+      parent.insertBefore(bi, cur)
     }
-
-    bprevNext = bj && bj.nextSibling
   }
 
   return b
