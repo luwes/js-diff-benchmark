@@ -1,35 +1,28 @@
-module.exports = function merge (parent, a, b, before) {
-  let i, ai, bi, off, bidx = new Set(b), aidx = new Set(a)
+module.exports = function merge (parent, a, b) {
+  let i, j, ai, bj, bprevNext = a[0], bidx = new Set(b), aidx = new Set(a)
 
-  // walk by b from tail
-  // a: 1 2 3 4 5, b: 1 2 3 → off: +2
-  // ~i-- === i-- >= 0
-  for (i = b.length, off = a.length - i; ~i--; ) {
-    ai = a[i + off], bi = b[i]
+  for (i = 0, j = 0; j <= b.length; i++, j++) {
+    ai = a[i], bj = b[j]
 
-    if (ai === bi) {}
+    if (ai === bj) {}
 
     else if (ai && !bidx.has(ai)) {
-      // replace (bi can be undefined in case of clearing the list)
-      if (bi && !aidx.has(bi)) parent.replaceChild(bi, ai)
+      // replace
+      if (bj && !aidx.has(bj)) parent.replaceChild(bj, ai)
 
       // remove
-      else (parent.removeChild(ai), off--, i++)
+      else (parent.removeChild(ai), j--)
+    }
+    else if (bj) {
+      // move - skips bj for the following swap
+      if (!aidx.has(bj)) i--
+
+      // insert after bj-1, bj
+      parent.insertBefore(bj, bprevNext)
     }
 
-    else if (bi) {
-      if (bi.nextSibling != before || !bi.nextSibling) {
-        // move (skip since will be handled by the following b)
-        if (bidx.has(ai)) off--
-
-        // insert
-        parent.insertBefore(bi, before), off++
-      }
-    }
-
-    before = bi
+    bprevNext = bj && bj.nextSibling
   }
 
   return b
 }
-
