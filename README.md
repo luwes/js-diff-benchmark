@@ -11,7 +11,7 @@ Simple benchmark for testing your DOM diffing algorithm.
 | 4 | [snabbdom](https://github.com/snabbdom/snabbdom) | 412B | ~21ms |
 | 3 | [heckel](https://johnresig.com/projects/javascript-diff-algorithm/) | 449B | ~37ms |
 | 5 | [stage0](https://github.com/Freak613/stage0) | 941B | ~47ms |
-| 6 | [spect](https://github.com/spectjs/spect) | 218B | ~68ms |
+| 6 | [spect](https://github.com/spectjs/spect) | 209B (min 185b) | ~28ms |
 
 ## Screenshot
 
