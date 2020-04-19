@@ -26,7 +26,7 @@
  * @returns {Node[]} The same list of future children.
  */
 module.exports = (parentNode, a, b, before) => {
-  const bLength = b.length;
+  let bLength = b.length;
   let aEnd = a.length;
   let bEnd = bLength;
   let aStart = 0;
@@ -39,7 +39,7 @@ module.exports = (parentNode, a, b, before) => {
       // need to be added are not at the end, and in such case
       // the node to `insertBefore`, if the index is more than 0
       // must be retrieved, otherwise it's gonna be the first item.
-      const node = bEnd < bLength ?
+      let node = bEnd < bLength ?
         (bStart ?
           (b[bStart - 1].nextSibling) :
           b[bEnd - bStart]) :
@@ -79,7 +79,7 @@ module.exports = (parentNode, a, b, before) => {
       // or asymmetric too
       // [1, 2, 3, 4, 5]
       // [1, 2, 3, 5, 6, 4]
-      const node = a[--aEnd].nextSibling;
+      let node = a[--aEnd].nextSibling;
       parentNode.insertBefore(
         b[bStart++],
         a[aStart++].nextSibling
@@ -109,7 +109,7 @@ module.exports = (parentNode, a, b, before) => {
       // if it's a future node, hence it needs some handling
       if (map.has(a[aStart])) {
         // grab the index of such node, 'cause it might have been processed
-        const index = map.get(a[aStart]);
+        let index = map.get(a[aStart]);
         // if it's not already processed, look on demand for the next LCS
         if (bStart < index && index < bEnd) {
           let i = aStart;
@@ -128,7 +128,7 @@ module.exports = (parentNode, a, b, before) => {
           // this would place 7 before 1 and, from that time on, 1, 2, and 3
           // will be processed at zero cost
           if (sequence > (index - bStart)) {
-            const node = a[aStart];
+            let node = a[aStart];
             while (bStart < index)
               parentNode.insertBefore(b[bStart++], node);
           }
