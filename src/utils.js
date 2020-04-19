@@ -64,7 +64,7 @@ module.exports = (document, container, before) => {
       const start = oldNodes.length;
       const childNodes = oldNodes.slice();
       for (let i = 0; i < 1000; i++)
-        childNodes.push(document.createTextNode(container, start + i));
+        childNodes.push(document.createTextNode(start + i));
       return diff(container, oldNodes, childNodes, before);
     },
     clear(diff, oldNodes) {
@@ -85,7 +85,7 @@ module.exports = (document, container, before) => {
     prepend1000(diff, oldNodes) {
       const childNodes = [];
       for (let i = 0; i < 1000; i++)
-        childNodes.push(document.createTextNode(container, -i));
+        childNodes.push(document.createTextNode(-i));
       return diff(
         container,
         oldNodes,
