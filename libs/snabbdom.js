@@ -106,7 +106,7 @@ module.exports = function(parent, a, b, afterNode) {
   if (start_i <= end_i || start_j <= end_j) {
     if (start_i > end_i) { // old list exhausted; process new list additions
       for (start_j; start_j <= end_j; start_b = b[++start_j]) {
-        parent.insertBefore(start_b, afterNode);
+        parent.insertBefore(start_b, a[start_i] || afterNode);
       }
     } else { // new list exhausted; process old list removals
       for (start_i; start_i <= end_i; ++start_i) {
