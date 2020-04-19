@@ -166,7 +166,7 @@ libs.forEach((lib) => {
   const stop = (count, operationMax) => {
     const end = microtime.now() - begin;
     const delta = count - operationMax;
-    libResults.push(`${round(end / 1000)}ms
+    libResults.push(`${(end / 1000).toPrecision(2)}ms
     ${c.gray(count)}${
       count > operationMax
         ? (delta > 99 ? '\n' : ' ') + c.bgRed.black(`+${delta}`)
@@ -291,7 +291,7 @@ libs.forEach((lib) => {
 
   //*/
 
-  libResults.push(`${round((microtime.now() - totalStart) / 1000)}ms`);
+  libResults.push(`${((microtime.now() - totalStart) / 1000).toPrecision(3)}ms`);
   libResults.push(`${gzip}B`);
 
   // const used = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -313,7 +313,3 @@ table.sort((a, b) => {
 });
 
 console.log(table.toString());
-
-function round(num) {
-  return Math.round((num + Number.EPSILON) * 10) / 10;
-}
