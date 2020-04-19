@@ -37,6 +37,11 @@ module.exports = (document, container, before) => {
     mutations.push(`replace: put(${textContent})`);
     return replaceChild.call(this, newNode, oldNode);
   };
+  const createNode = text => {
+    const node = document.createElement('p');
+    node.appendChild(document.createTextNode(text));
+    return node;
+  };
   return {
     // Benchnmark Utilities
     reset() {
@@ -64,7 +69,7 @@ module.exports = (document, container, before) => {
       const start = oldNodes.length;
       const childNodes = oldNodes.slice();
       for (let i = 0; i < 1000; i++)
-        childNodes.push(document.createTextNode(start + i));
+        childNodes.push(createNode(start + i));
       return diff(container, oldNodes, childNodes, before);
     },
     clear(diff, oldNodes) {
@@ -73,19 +78,19 @@ module.exports = (document, container, before) => {
     create1000(diff, oldNodes) {
       const childNodes = [];
       for (let i = 0; i < 1000; i++)
-        childNodes.push(document.createTextNode(i));
+        childNodes.push(createNode(i));
       return diff(container, oldNodes, childNodes, before);
     },
     create10000(diff, oldNodes) {
       const childNodes = [];
       for (let i = 0; i < 10000; i++)
-        childNodes.push(document.createTextNode(i));
+        childNodes.push(createNode(i));
       return diff(container, oldNodes, childNodes, before);
     },
     prepend1000(diff, oldNodes) {
       const childNodes = [];
       for (let i = 0; i < 1000; i++)
-        childNodes.push(document.createTextNode(-i));
+        childNodes.push(createNode(-i));
       return diff(
         container,
         oldNodes,
@@ -104,7 +109,7 @@ module.exports = (document, container, before) => {
     updateEach10thRow(diff, oldNodes) {
       const childNodes = oldNodes.slice();
       for (let i = 0; i < childNodes.length; i += 10)
-        childNodes[i] = document.createTextNode(i + '!');
+        childNodes[i] = createNode(i + '!');
       return diff(container, oldNodes, childNodes, before);
     }
   };
