@@ -211,7 +211,7 @@
       const stop = (count, operationMax) => {
         const end = performance.now() - begin;
         const delta = count - operationMax;
-        libResults.push(`${(end / 1000).toPrecision(2)}ms
+        libResults.push(`${end.toPrecision(2)}ms
         <span class="count">${count}</span><span class="delta">${
           count > operationMax
             ? (delta > 99 ? '\n' : ' ') + `+${delta}`
@@ -356,7 +356,7 @@
       childNodes = clear(diff, childNodes);
       reset();
 
-      libResults.push(`${((performance.now() - totalStart) / 1000).toPrecision(2)}ms`);
+      libResults.push(`${(performance.now() - totalStart)}ms`);
 
     };
 
