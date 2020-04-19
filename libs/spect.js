@@ -1,23 +1,23 @@
-module.exports = function (parent, a, b) {
-  const bidx = new Set(b), aidx = new Set(a)
-  let i, cur = a[0], next, bi
+module.exports = module.exports = (parent, a, b, end = null) => {
+  let bidx = new Set(b), aidx = new Set(a), i = 0, cur = a[0], next, bi
 
-  for (i = 0; i <= b.length; i++) {
-    bi = b[i], next = cur && cur.nextSibling
+  while ((bi = b[i++]) || cur != end) {
+    next = cur ? cur.nextSibling : end
 
     // skip
-    if (cur === bi) cur = next
+    if (cur == bi) cur = next
 
-    // remove
-    else if (cur && !bidx.has(cur)) (parent.removeChild(cur), i--, cur = next)
+    // insert has higher priority, inc. tail-append shortcut
+    else if (bi && (!cur || bidx.has(cur))) {
+      // swap
+      if (b[i] === next && aidx.has(bi)) cur = next
 
-    else if (bi) {
-      // swap (only 1:1 pairs) (technically redundant but avoids long rearrangements)
-      if (aidx.has(bi) && b[i+1] === next) (parent.insertBefore(cur, bi), cur = next)
-
-      // insert after bi-1, bi
+      // insert
       parent.insertBefore(bi, cur)
     }
+
+    // remove
+    else (parent.removeChild(cur), cur = next, i--)
   }
 
   return b
