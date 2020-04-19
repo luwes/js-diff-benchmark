@@ -1,4 +1,4 @@
-module.exports = function merge (parent, a, b) {
+module.exports = function (parent, a, b) {
   const bidx = new Set(b), aidx = new Set(a)
   let i, cur = a[0], next, bi
 
