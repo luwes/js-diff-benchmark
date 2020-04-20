@@ -1,6 +1,6 @@
 const fs = require('fs');
 const c = require('ansi-colors');
-var Terser = require('terser');
+const Terser = require('terser');
 const gzipSize = require('gzip-size');
 const Table = require('cli-table');
 const microtime = require('microtime');
@@ -43,7 +43,7 @@ const table = new Table({
 let shuffleSeed;
 
 // in case we'd like to test "pinnability" of the differ
-let before;// = document.createTextNode('<!--pin-->');
+let before = document.createTextNode('<!--pin-->');
 
 const parent = document.createElement('div');
 
@@ -63,8 +63,8 @@ libs.forEach((lib) => {
   const file = `libs/${lib}.js`;
   const diff = require(`../${file}`);
 
-  var code = fs.readFileSync(file, 'utf8');
-  var gzip = gzipSize.sync(Terser.minify(code).code);
+  const code = fs.readFileSync(file, 'utf8');
+  const gzip = gzipSize.sync(Terser.minify(code).code);
 
   // clean up the parent
   parent.textContent = '';
@@ -309,7 +309,7 @@ libs.forEach((lib) => {
 table.sort((a, b) => {
   a = Object.values(a)[0];
   b = Object.values(b)[0];
-  return parseInt(a[a.length - 2]) - parseInt(b[b.length - 2]);
+  return parseFloat(a[a.length - 2]) - parseFloat(b[b.length - 2]);
 });
 
 console.log(table.toString());
