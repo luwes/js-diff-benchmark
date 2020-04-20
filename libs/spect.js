@@ -1,4 +1,4 @@
-module.exports = module.exports = (parent, a, b, end = null) => {
+module.exports = (parent, a, b, end = null) => {
   let bidx = new Set(b), aidx = new Set(a), i = 0, cur = a[0], next, bi
 
   while ((bi = b[i++]) || cur != end) {
@@ -8,7 +8,7 @@ module.exports = module.exports = (parent, a, b, end = null) => {
     if (cur == bi) cur = next
 
     // insert has higher priority, inc. tail-append shortcut
-    else if (bi && (!cur || bidx.has(cur))) {
+    else if (bi && (cur == end || bidx.has(cur))) {
       // swap
       if (b[i] === next && aidx.has(bi)) cur = next
 
@@ -22,3 +22,4 @@ module.exports = module.exports = (parent, a, b, end = null) => {
 
   return b
 }
+
