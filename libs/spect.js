@@ -1,5 +1,5 @@
 module.exports = (parent, a, b, end = null) => {
-  let bidx = new Set(b), aidx = new Set(a), i = 0, cur = a[0], next, bi
+  let bidx = new Set(b), aidx = new Set(a), i = 0, cur = a[0] || end, next, bi
 
   while ((bi = b[i++]) || cur != end) {
     next = cur ? cur.nextSibling : end
