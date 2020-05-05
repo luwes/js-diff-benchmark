@@ -1,18 +1,18 @@
 module.exports = (parent, a, b, end = null) => {
-  let bidx = new Set(b), aidx = new Set, i = 0, cur, next, bi
-  
-  while (bi = a[i++]) !bidx.has(bi) ? parent.removeChild(bi) : (aidx.add(bi), cur = cur || bi)
+  let i = 0, cur, next, bi, bidx = new Set(b)
+
+  while (bi = a[i++]) !bidx.has(bi) ? parent.removeChild(bi) : cur = cur || bi
   cur = cur || end, i = 0
 
   while (bi = b[i++]) {
-    next = cur.nextSibling
+    next = cur ? cur.nextSibling : end
 
     // skip
     if (cur == bi) cur = next
 
     else {
-      // swap
-      if (b[i] === next && aidx.has(bi)) cur = next
+      // swap 1:1
+      if (b[i] === next) cur = next
 
       // insert
       parent.insertBefore(bi, cur)
@@ -21,4 +21,3 @@ module.exports = (parent, a, b, end = null) => {
 
   return b
 }
-
