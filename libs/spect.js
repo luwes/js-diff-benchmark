@@ -1,25 +1,31 @@
 module.exports = (parent, a, b, end = null) => {
-  let bidx = new Set(b), aidx = new Set(a), i = 0, cur = a[0] || end, next, bi
+  let i = 0, cur, next, bi
 
-  while ((bi = b[i++]) || cur != end) {
-    next = cur ? cur.nextSibling : end
+  // skip head
+  while (a[i] === b[i] && b[i++]);
 
-    // skip
-    if (cur == bi) cur = next
+  // append
+  if (i == a.length) while (bi = b[i++]) parent.insertBefore(bi, end)
 
-    // insert has higher priority, inc. tail-append shortcut
-    else if (bi && (cur == end || bidx.has(cur))) {
-      // swap
-      if (b[i] === next && aidx.has(bi)) cur = next
+  else {
+    cur = a[i] || end
+
+    while (bi = b[i++]) {
+      next = cur ? cur.nextSibling : end
+
+      // skip
+      if (cur == bi) cur = next
+
+      // swap / replace
+      else if (b[i] === next) (parent.replaceChild(bi, cur), cur = next)
 
       // insert
-      parent.insertBefore(bi, cur)
+      else parent.insertBefore(bi, cur)
     }
 
-    // remove
-    else (parent.removeChild(cur), cur = next, i--)
+    // remove tail
+    while (cur !== end) (next = cur ? cur.nextSibling : end, parent.removeChild(cur), cur = next)
   }
 
   return b
 }
-
