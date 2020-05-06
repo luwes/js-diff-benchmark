@@ -5,7 +5,7 @@ module.exports = (parent, a, b, end = null) => {
   while (i < n && i < m && a[i] == b[i]) i++
 
   // skip tail
-  while (n && m && b[n-1] == a[m-1]) (end = b[--n], --m)
+  while (n && m && b[n-1] == a[m-1]) end = b[--m, --n]
 
   // append/prepend shortcut
   if (i == m) while (i < n) parent.insertBefore(b[i++], end)
