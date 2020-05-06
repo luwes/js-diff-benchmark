@@ -1,16 +1,18 @@
 module.exports = (parent, a, b, end = null) => {
-  let i = 0, cur, next, bi
+  let i = 0, cur, next, bi, n = b.length
 
   // skip head
-  if (a.length) while (a[i] === b[i]) i++
+  while (a[i] === b[i] && i < n) i++
 
   // append
-  if (i >= a.length) while (i < b.length) parent.insertBefore(b[i++], end)
+  if (i >= a.length) {
+    while (i < n) parent.insertBefore(b[i++], end)
+  }
 
   else {
     cur = a[i] || end
 
-    while (i < b.length) {
+    while (i < n) {
       bi = b[i++], next = cur ? cur.nextSibling : end
 
       // skip
