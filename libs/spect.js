@@ -5,29 +5,32 @@ module.exports = (parent, a, b, end = null) => {
   while (i < n && i < m && a[i] == b[i]) i++
   while (i < n && i < m && b[n-1] == a[m-1]) end = b[--m, --n]
 
-  // append/prepend/clear shortcuts
-  if (i == m) { while (i < n) parent.insertBefore(b[i++], end); return b }
-  if (i == n) { while (i < m) parent.removeChild(a[i++]); return b }
+  // append/prepend/trim shortcuts
+  if (i == m) while (i < n) parent.insertBefore(b[i++], end)
+  if (i == n) while (i < m) parent.removeChild(a[i++])
 
-  cur = a[i]
+  else {
+    cur = a[i]
 
-  while (i < n) {
-    bi = b[i++], next = cur ? cur.nextSibling : end
+    while (i < n) {
+      bi = b[i++], next = cur ? cur.nextSibling : end
 
-    // skip
-    if (cur == bi) cur = next
+      // skip
+      if (cur == bi) cur = next
 
-    // swap / replace
-    else if (i < n && b[i] == next) (parent.replaceChild(bi, cur), cur = next)
+      // swap / replace
+      else if (i < n && b[i] == next) (parent.replaceChild(bi, cur), cur = next)
 
-    // insert
-    else parent.insertBefore(bi, cur)
+      // insert
+      else parent.insertBefore(bi, cur)
+    }
+
+    // remove tail
+    while (cur != end) (next = cur.nextSibling, parent.removeChild(cur), cur = next)
   }
-
-  // remove tail
-  while (cur != end) (next = cur.nextSibling, parent.removeChild(cur), cur = next)
 
   return b
 }
+
 
 
