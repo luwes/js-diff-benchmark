@@ -19,7 +19,7 @@
     "jstat": "^1.9.2",
     "lodash": "^4.17.15",
     "lowdb": "^1.0.0",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "microtime": "^3.0.0",
     "terser": "^4.6.11",
     "udomdiff": "^1.1.0"
