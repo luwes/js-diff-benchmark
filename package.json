@@ -21,7 +21,7 @@
     "lowdb": "^1.0.0",
     "minimist": "^1.2.5",
     "microtime": "^3.0.0",
-    "terser": "^4.6.11",
+    "terser": "^4.8.1",
     "udomdiff": "^1.1.0"
   }
 }
